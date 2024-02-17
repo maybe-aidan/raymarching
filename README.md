@@ -3,7 +3,7 @@ A repository documenting my progressing learning about the raymarching method of
 
 ## Description
 
-This project is a documentation of my recent endeavors in learning the raymarching techinique for 3D rendering, in which 3D object are represented by Signed Distance Fucntions (SDFs),
+This project is a documentation of my recent endeavors in learning the raymarching techinique for 3D rendering, in which 3D objects are represented by Signed Distance Fucntions (SDFs),
 negating the need for many polygons to represent complex 3D geometry. This allows the programs to cut down on space typically needed to store large 3D models, with many triangles,
 as this method only renders two triangles. The use of signed distance functions instead of 3D models, allows us as programmers and artists to creates beautiful and complex 3D objects,
 such as fractals, and infinite repeated shapes without any signifcant performance decrease.
