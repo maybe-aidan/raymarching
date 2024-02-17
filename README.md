@@ -11,7 +11,7 @@ such as fractals, and infinite repeated shapes without any signifcant performanc
 ## The Algorithm
 
 There are many much better sources to learn about the raymarching algorithm, but here is my breakdown.
-- Starting from a point in space and a direction the point wishes to travel, a distance to the nearest object is calculated.
+- Starting from a point in space and a direction the point wishes to travel, a distance to the nearest object is calculated (using a combination of SDFs).
 - This distance is the minimum safest distance the point can travel in **any** direction.
 - The point then **marches** forward and recalculates the distance to the nearest object.
 - This is repeated until the distance to an object is arbitrarily small (an object is hit), or enough steps have occurred (an object is missed)
