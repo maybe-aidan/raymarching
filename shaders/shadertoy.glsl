@@ -79,7 +79,8 @@ vec3 raymarch(in vec3 ro, in vec3 rd, in vec2 uv) {
             vec3 direction_to_light = normalize(current_position - light_position);
 
             vec3 lighting = phong(normalize(direction_to_light), normalize(current_position - ro), normal);
-
+                                                        
+                                                         // color based on displacement values
             return vec3(0.0, 0.6353, 1.0) * lighting + displacement(current_position) * vec3(0.0, 1.0, 0.0) * 2.0;
         }
 
@@ -88,7 +89,7 @@ vec3 raymarch(in vec3 ro, in vec3 rd, in vec2 uv) {
         }
         total_dist_traveled += march_radius;
     }
-
+                                        // creates the "starburst" effect in the background
     return vec3(0.0, 0.1725, 0.3686) * ((1.0/sqrt(uv.x * uv.x + uv.y * uv.y)) + vec3(0.2));
 
 }
