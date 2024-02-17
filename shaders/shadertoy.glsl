@@ -51,7 +51,7 @@ vec3 phong(in vec3 lightDir, in vec3 viewDir, in vec3 N) {
 
     const float specularStrength = 0.5;
     vec3 reflectDir = reflect(lightDir, N);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
     vec3 specular = lightColor * (specularStrength * spec);
 
     vec3 result = ambient + diffuse + specular;
@@ -79,8 +79,9 @@ vec3 raymarch(in vec3 ro, in vec3 rd, in vec2 uv) {
             vec3 direction_to_light = normalize(current_position - light_position);
 
             vec3 lighting = phong(normalize(direction_to_light), normalize(current_position - ro), normal);
-
-            return vec3(0.0, 0.6353, 1.0) * lighting + displacement(current_position) * vec3(0.0, 1.0, 0.0) * 2;
+                                                        
+                                                         // color based on displacement values
+            return vec3(0.0, 0.6353, 1.0) * lighting + displacement(current_position) * vec3(0.0, 1.0, 0.0) * 2.0;
         }
 
         if(total_dist_traveled > MAX_DISTANCE) { // Miss
@@ -88,8 +89,8 @@ vec3 raymarch(in vec3 ro, in vec3 rd, in vec2 uv) {
         }
         total_dist_traveled += march_radius;
     }
-
-    return vec3(0.0, 0.1725, 0.3686) * ((1/sqrt(uv.x * uv.x + uv.y * uv.y)) + vec3(0.2));
+                                        // creates the "starburst" effect in the background
+    return vec3(0.0, 0.1725, 0.3686) * ((1.0/sqrt(uv.x * uv.x + uv.y * uv.y)) + vec3(0.2));
 
 }
 
@@ -101,7 +102,7 @@ mat3 getCam(vec3 ro, vec3 lookAt) {
 }
 
 void mouseControl(inout vec3 ro) {
-    vec2 m = iMouse / iResolution;
+    vec2 m = iMouse.xy / iResolution.xy;
     rotate_around_axis(ro.yz, m.y * PI * 0.5 - 0.5);
     rotate_around_axis(ro.xz, m.x * TAU );
 }
