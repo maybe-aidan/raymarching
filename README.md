@@ -26,5 +26,5 @@ Included is also a version of the fragment shader used, written and formatted fo
 - Otherwise, you can try to build the project as a standalone C++ application.
 
 ## Other Resources and Learning
-For more learning on 3D graphics in general, I highly reccomend [learnopengl](learnopengl.com), which is where I learned most of what I know.
-For more on raymarching and setting up your first project on your own, I reccommend [this](https://michaelwalczyk.com/blog-ray-marching.html) article written by Michael Walczyk, which is where I started this project from.
+-For more learning on 3D graphics in general, I highly reccomend [learnopengl](learnopengl.com), which is where I learned most of what I know.
+-For more on raymarching and setting up your first project on your own, I reccommend [this](https://michaelwalczyk.com/blog-ray-marching.html) article written by Michael Walczyk, which is where I started this project from.
