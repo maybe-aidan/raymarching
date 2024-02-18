@@ -47,7 +47,7 @@ int main()
         return -1;
     }    
 
-    Shader renderImage("shaders/basic_vertex.glsl", "shaders/raymarching.glsl");
+    Shader renderImage("shaders/basic_vertex.glsl", "shaders/smooth_mixing.glsl");
 
     float vertices[] = {
          1.0f,  1.0f, 0.0f,
