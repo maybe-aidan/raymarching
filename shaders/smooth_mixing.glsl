@@ -26,10 +26,14 @@ float differenceSDF(in float distA, in float distB) {
     return max(distA, -distB);
 }
 
+// this function returns a smoothed maximum of two functions
+// k represents a coefficient of smoothing; essentially how strong our smoothing function is.
 float smoothMax(float a, float b, float k) {
     return log(exp(k * a) + exp(k * b)) / k;
 }
 
+
+// the inverse of the smoothMax, allowing us to get fluid mixing of SDFs when sufficiently close together
 float smoothMin(float a, float b, float k) {
     return -smoothMax(-a, -b, k);
 }
@@ -47,6 +51,7 @@ vec2 differenceVec2(in vec2 v1, in vec2 v2) {
     return (v1.x > -v2.x) ? v1: -v2;
 }
 
+// passes the functions to the corresponding float function, retrieves material ID from union function.
 vec2 smoothMinVec2(in vec2 v1, in vec2 v2, float k) {
     float x = smoothMin(v1.x, v2.x, k);
     float y = unionVec2(v1, v2).y;
@@ -80,6 +85,7 @@ float distance_from_origin(in vec3 p) {
 }
 
 // Combination of all SDFs
+// updated to return a vec2 representing the tuple of (function value, material ID)
 vec2 map_of_the_world(in vec3 p){
     float disp = displacement(p);
     vec3 origin = vec3(0.0);
@@ -116,6 +122,8 @@ vec3 calculate_normal(in vec3 p) {
     return normalize(normal);
 }
 
+// all functions come in a tuple, with the x component being the float value of the function, 
+// and the y component being the ID for assigning a color or material to the object
 vec3 getMaterial(float ID) {
     vec3 m;
     switch(int(ID)) {
@@ -152,6 +160,7 @@ vec3 phong(in vec3 lightDir, in vec3 viewDir, in vec3 N, in float ID) {
     return result;
 }
 
+// improved version of the original Phong model.
 vec3 blinn_phong(in vec3 lightDir, in vec3 viewDir, in vec3 N, in float ID) {
     const vec3 lightColor = vec3(0.8, 1.0, 1.0);
     const float ambientStrength = 0.2;
@@ -185,6 +194,7 @@ vec3 raymarch(in vec3 ro, in vec3 rd, in vec2 uv) {
         vec3 current_position = ro + total_dist_traveled * rd;
 
         // feed the sdf with p = current_position
+        // Notice each function call to map_of_the_world() must specify the x or y component now
         float march_radius = map_of_the_world(current_position).x;
 
         if(march_radius < EPSILON) { // Hit!
