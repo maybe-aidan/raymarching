@@ -13,7 +13,7 @@ void rotate_around_axis(inout vec2 p, float a) {
 }
 
 // Operators
-
+// These operators allow us to combine sdfs to create more complex shapes
 float intersectSDF(in float distA, in float distB) {
     return max(distA, distB);
 }
@@ -38,6 +38,8 @@ float distance_from_sphere(in vec3 p, in vec3 c, in float r){
 // || p - c || = r : we are touching the sphere
 // || p - c || > r : we are outside the sphere
 
+
+// SDF for a cube of side length 2 * scale
 float distance_from_cube(in vec3 p, in vec3 c, in float scale) {
     vec3 q = abs(p - c) - scale;
     return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
@@ -60,6 +62,7 @@ float map_of_the_world(in vec3 p){
 
     float cube0 = distance_from_cube(p, vec3(0.0), 1.7);
 
+    // Combinin each of the SDFs using our operators to create a more complex shape.
     float result = differenceSDF(intersectSDF(cube0, sphere1), sphere0 - disp);
 
     return result;

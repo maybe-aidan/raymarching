@@ -24,6 +24,7 @@ float distance_from_sphere(in vec3 p, in vec3 c, in float r){
 // || p - c || = r : we are touching the sphere
 // || p - c || > r : we are outside the sphere
 
+// basic smooth displacement using a combination of continous periodic functions
 float displacement(in vec3 p) {
     return sin(4.0 * p.x + u_time * 0.02) * sin(6.0 * p.y - u_time * 0.005) * sin(3.0 * p.z + u_time * 1.02) * 0.25;
 }
@@ -36,6 +37,8 @@ float map_of_the_world(in vec3 p){
     return sphere0 + disp;
 }
 
+// Samples points close to the position in order to determine the gradient(derivative of vector functions), 
+// which allows us to calculate a normal for any general sdf
 vec3 calculate_normal(in vec3 p) {
     const vec3 small_step = vec3(0.0001, 0.0, 0.0);
     float x_gradient = map_of_the_world(p + small_step.xyy) - map_of_the_world(p - small_step.xyy);
@@ -47,15 +50,20 @@ vec3 calculate_normal(in vec3 p) {
     return normalize(normal);
 }
 
+
+// Phong reflection model
 vec3 phong(in vec3 lightDir, in vec3 viewDir, in vec3 N) {
     const vec3 lightColor = vec3(1.0, 1.0, 1.0);
 
+    // ambient lighting
     const float ambientStrength = 0.1;
     vec3 ambient = lightColor * ambientStrength;
 
+    // diffuse lighting
     float diff = max(dot(N, lightDir), 0.0);
     vec3 diffuse = lightColor * diff;
 
+    // specular lighting
     const float specularStrength = 0.5;
     vec3 reflectDir = reflect(lightDir, N);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
@@ -65,14 +73,17 @@ vec3 phong(in vec3 lightDir, in vec3 viewDir, in vec3 N) {
     return result;
 }
 
+// The raymarching algorithm
 vec3 raymarch(in vec3 ro, in vec3 rd, in vec2 uv) {
     float total_dist_traveled = 0.0;
 
+    // constants to break out of the loop
     const int NUMBER_OF_STEPS = 256;
     const float EPSILON = 0.0001;
     const float MAX_DISTANCE = 1000.0;
 
     for(int i = 0; i < NUMBER_OF_STEPS; i++) {
+        // current position is equal to the origin of the ray + distance traveled in a given direction
         vec3 current_position = ro + total_dist_traveled * rd;
 
         // feed the sdf with p = current_position
@@ -83,8 +94,9 @@ vec3 raymarch(in vec3 ro, in vec3 rd, in vec2 uv) {
 
             vec3 light_position = vec3(2.0, -5.0, 3.0);
 
+            // creates a normalized vector pointing toward the light
             vec3 direction_to_light = normalize(current_position - light_position);
-
+            // generates sahding based on the phong model
             vec3 lighting = phong(normalize(direction_to_light), normalize(current_position - ro), normal);
 
                                                          // Color based on displacement value
@@ -94,6 +106,7 @@ vec3 raymarch(in vec3 ro, in vec3 rd, in vec2 uv) {
         if(total_dist_traveled > MAX_DISTANCE) { // Miss
             break;
         }
+        // increment the distance traveled by the result of the signed distance function
         total_dist_traveled += march_radius;
     }
                                         // creates the sort of starburst effect of the background
@@ -101,6 +114,7 @@ vec3 raymarch(in vec3 ro, in vec3 rd, in vec2 uv) {
 
 }
 
+// camera stuff
 mat3 getCam(vec3 ro, vec3 lookAt) {
 	vec3 camF = normalize(vec3(lookAt - ro));
 	vec3 camR = normalize(cross(vec3(0,1,0), camF));
@@ -124,6 +138,7 @@ void render(inout vec3 color, in vec2 uv) {
 }
 
 void main() {
+    // remaps the screen coordinates to [0, 1] on both x and y
     vec2 uv = (2.0 * gl_FragCoord.xy - u_resolution.xy) / u_resolution.y;
 
     vec3 color = vec3(0.0, 0.0, 0.0);

@@ -17,6 +17,8 @@ float distance_from_sphere(in vec3 p, in vec3 c, in float r){
 // || p - c || = r : we are touching the sphere
 // || p - c || > r : we are outside the sphere
 
+
+// smooth dislpacement function based on a combination of periodic continous functions
 float displacement(in vec3 p) {
     return sin(4.0 * p.x + iTime * 0.02) * sin(6.0 * p.y - iTime * 0.005) * sin(3.0 * p.z + iTime * 1.02) * 0.25;
 }
@@ -29,6 +31,7 @@ float map_of_the_world(in vec3 p){
     return sphere0 + disp;
 }
 
+// calculates the gradient around a point to easily determine the noraml for any sdf
 vec3 calculate_normal(in vec3 p) {
     const vec3 small_step = vec3(0.0001, 0.0, 0.0);
     float x_gradient = map_of_the_world(p + small_step.xyy) - map_of_the_world(p - small_step.xyy);
@@ -40,6 +43,7 @@ vec3 calculate_normal(in vec3 p) {
     return normalize(normal);
 }
 
+// Phong reflection model
 vec3 phong(in vec3 lightDir, in vec3 viewDir, in vec3 N) {
     const vec3 lightColor = vec3(1.0, 1.0, 1.0);
 
@@ -58,14 +62,18 @@ vec3 phong(in vec3 lightDir, in vec3 viewDir, in vec3 N) {
     return result;
 }
 
+// the raymarching algorithm
 vec3 raymarch(in vec3 ro, in vec3 rd, in vec2 uv) {
     float total_dist_traveled = 0.0;
 
+    // constants to allow us to break out of the loop
     const int NUMBER_OF_STEPS = 256;
     const float EPSILON = 0.0001;
     const float MAX_DISTANCE = 1000.0;
 
     for(int i = 0; i < NUMBER_OF_STEPS; i++) {
+
+        // marching the ray along our path from the ray origin based on total distance traveled
         vec3 current_position = ro + total_dist_traveled * rd;
 
         // feed the sdf with p = current_position
@@ -87,6 +95,7 @@ vec3 raymarch(in vec3 ro, in vec3 rd, in vec2 uv) {
         if(total_dist_traveled > MAX_DISTANCE) { // Miss
             break;
         }
+        // increment the total distance traveled by the value obtained from our SDFs
         total_dist_traveled += march_radius;
     }
                                         // creates the "starburst" effect in the background
@@ -94,6 +103,7 @@ vec3 raymarch(in vec3 ro, in vec3 rd, in vec2 uv) {
 
 }
 
+// camera stuff
 mat3 getCam(vec3 ro, vec3 lookAt) {
 	vec3 camF = normalize(vec3(lookAt - ro));
 	vec3 camR = normalize(cross(vec3(0,1,0), camF));
@@ -117,6 +127,7 @@ void render(inout vec3 color, in vec2 uv) {
 }
 
 void mainImage( out vec4 fragColor, in vec2 fragCoord) {
+    // remaps the screen coordinates to [0, 1] on both x and y
     vec2 uv = (2.0 * fragCoord.xy - iResolution.xy) / iResolution.y;
 
     vec3 color = vec3(0.0, 0.0, 0.0);
