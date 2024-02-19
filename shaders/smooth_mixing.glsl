@@ -98,6 +98,8 @@ vec2 map_of_the_world(in vec3 p){
     float complex_function = differenceSDF(cube_func, sphere0_func - disp);
     vec2 moving = vec2(complex_function, moving_ID);
 
+    vec2 sphere = vec2(sphere0_func + disp, 1.0);
+
     // complex shape
     float shape_ID = 3.0;
     float cube_component = distance_from_cube(p, origin, 1.8);
@@ -106,7 +108,7 @@ vec2 map_of_the_world(in vec3 p){
     float complex = intersectSDF(outer_sphere, differenceSDF(cube_component, inner_sphere));
     vec2 complex_shape = vec2(complex, shape_ID);
 
-    vec2 scene = smoothMinVec2(complex_shape, moving, 3.0);
+    vec2 scene = smoothMinVec2(complex_shape, sphere, 3.0);
 
     return scene;
 }
@@ -183,6 +185,28 @@ vec3 blinn_phong(in vec3 lightDir, in vec3 viewDir, in vec3 N, in float ID) {
     return ambient + diffuse + specular;
 }
 
+// a very cool stylized cell shader!
+vec3 CellShader(in vec3 lightDir, in vec3 N, in float ID) {
+    float intensity = dot(lightDir, N);
+
+    if(intensity < 0)
+        intensity = 0;
+
+    vec3 color = getMaterial(ID);
+
+    if(intensity > 0.95) {
+        color = vec3(1.0, 1.0, 1.0) * color;
+    }else if(intensity > 0.5) {
+        color = vec3(0.7, 0.7, 0.7) * color;
+    } else if(intensity > 0.05) {
+        color = vec3(0.35, 0.35, 0.35) * color;
+    } else {
+        color = vec3(0.1, 0.1, 0.1) * color;
+    }
+
+    return color;
+}
+
 vec3 raymarch(in vec3 ro, in vec3 rd, in vec2 uv) {
     float total_dist_traveled = 0.0;
 
@@ -204,7 +228,8 @@ vec3 raymarch(in vec3 ro, in vec3 rd, in vec2 uv) {
 
             vec3 direction_to_light = normalize(current_position - light_position);
 
-            vec3 lighting = blinn_phong(normalize(direction_to_light), normalize(current_position - ro), normal, map_of_the_world(current_position).y);
+            //vec3 lighting = blinn_phong(normalize(direction_to_light), normalize(current_position - ro), normal, map_of_the_world(current_position).y);
+            vec3 lighting = CellShader(normalize(direction_to_light), normal, map_of_the_world(current_position).y);
                                                          // Color based on displacement value
             return lighting; //  + displacement(current_position) * vec3(0.0, 1.0, 0.0) * 2.0;
         }
